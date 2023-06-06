@@ -13,7 +13,7 @@ import feather
 # events data
 
 def paths(tokens):
-    all_paths = ['_'.join(tokens[0:(i+1)]) for i in range(len(tokens))]
+    all_paths = ['_'.join(tokens[:i+1]) for i in range(len(tokens))]
     return ' '.join(all_paths)
 
 def unwrap_geo(geo):

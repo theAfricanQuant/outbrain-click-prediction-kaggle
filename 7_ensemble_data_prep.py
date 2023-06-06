@@ -87,8 +87,8 @@ cols_to_rank = ['svm', 'ftrl', 'xgb_mtv', 'et_mtv', 'ffm']
 
 for f in tqdm(cols_to_rank):
     for df in [df_train_0, df_train_1, df_test]:
-        df['%s_rank' % f] = df.groupby('display_id')[f].rank(method='dense', ascending=0)
-        df['%s_rank' % f] = df['%s_rank' % f].astype('uint8')
+        df[f'{f}_rank'] = df.groupby('display_id')[f].rank(method='dense', ascending=0)
+        df[f'{f}_rank'] = df[f'{f}_rank'].astype('uint8')
 
 
 # some mean target value features
@@ -98,14 +98,14 @@ mtv_features = ['ad_document_id_on_doc_publisher_id',
                 'ad_document_id_on_doc_source_id']
 
 for f in mtv_features:
-    df_train_0[f] = np.load('features/mte/%s_pred_0.npy' % f)
-    df_train_0['%s_rank' % f] = np.load('features/mte/%s_pred_rank_0.npy' % f)
+    df_train_0[f] = np.load(f'features/mte/{f}_pred_0.npy')
+    df_train_0[f'{f}_rank'] = np.load(f'features/mte/{f}_pred_rank_0.npy')
 
-    df_train_1[f] = np.load('features/mte/%s_pred_1.npy' % f)
-    df_train_1['%s_rank' % f] = np.load('features/mte/%s_pred_rank_1.npy' % f)
+    df_train_1[f] = np.load(f'features/mte/{f}_pred_1.npy')
+    df_train_1[f'{f}_rank'] = np.load(f'features/mte/{f}_pred_rank_1.npy')
 
-    df_test[f] = np.load('features/mte/%s_pred_test.npy' % f)
-    df_test['%s_rank' % f] = np.load('features/mte/%s_pred_rank_test.npy' % f)
+    df_test[f] = np.load(f'features/mte/{f}_pred_test.npy')
+    df_test[f'{f}_rank'] = np.load(f'features/mte/{f}_pred_rank_test.npy')
 
 
 # now save everything

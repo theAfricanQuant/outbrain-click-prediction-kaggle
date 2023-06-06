@@ -55,7 +55,7 @@ class FtrlProximal(object):
 
             for i in range(len_x):
                 for j in range(i + 1, len_x):
-                    h = hash_element(sorted_x[i] + '_' + sorted_x[j], self.D)
+                    h = hash_element(f'{sorted_x[i]}_{sorted_x[j]}', self.D)
                     res.append(h)
 
         return res
@@ -89,9 +89,7 @@ class FtrlProximal(object):
         wTx = 0.
 
         indices = [0]
-        for i in x:
-            indices.append(i + 1)
-
+        indices.extend(i + 1 for i in x)
         for i in indices:
             sign = -1. if z[i] < 0 else 1.  # get sign of z[i]
 
@@ -138,9 +136,7 @@ class FtrlProximal(object):
         g = p - y
 
         indices = [0]
-        for i in x:
-            indices.append(i + 1)
-
+        indices.extend(i + 1 for i in x)
         # update z and n
         for i in indices:
             sigma = (sqrt(n[i] + g * g) - sqrt(n[i])) / alpha

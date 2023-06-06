@@ -10,7 +10,7 @@ from time import time
 import feather
 
 column = sys.argv[1]
-print('processing column %s...' % column)
+print(f'processing column {column}...')
 
 C = 12
 
@@ -103,12 +103,21 @@ t0 = time()
 f = column
 
 for df in [df_train_0, df_train_1, df_test]:
-    df['%s_rank' % f] = df.groupby('display_id')[f].rank(method='max', ascending=0)
-    df['%s_rank' % f] = df['%s_rank' % f].astype('uint8')
+    df[f'{f}_rank'] = df.groupby('display_id')[f].rank(method='max', ascending=0)
+    df[f'{f}_rank'] = df[f'{f}_rank'].astype('uint8')
 
 print('took %0.3fs' % (time() - t0))
 
 
-np.save('features/mtv/' + column + '_pred_rank_0.npy', df_train_0['%s_rank' % f].values)
-np.save('features/mtv/' + column + '_pred_rank_1.npy', df_train_1['%s_rank' % f].values)
-np.save('features/mtv/' + column + '_pred_rank_test.npy', df_test['%s_rank' % f].values)
+np.save(
+    'features/mtv/' + column + '_pred_rank_0.npy',
+    df_train_0[f'{f}_rank'].values,
+)
+np.save(
+    'features/mtv/' + column + '_pred_rank_1.npy',
+    df_train_1[f'{f}_rank'].values,
+)
+np.save(
+    'features/mtv/' + column + '_pred_rank_test.npy',
+    df_test[f'{f}_rank'].values,
+)

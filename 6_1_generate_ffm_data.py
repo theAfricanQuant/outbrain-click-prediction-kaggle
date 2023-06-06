@@ -90,7 +90,7 @@ def ffm_feature_string(display_id, ad_id, leaves, label=None):
     ad_doc_id = ad_to_doc[ad_id]
 
     ad_features = ad_str_dict[ad_id] #
-    
+
     disp_row = df_events_processed.iloc[display_id - 1]
     on_doc_id = disp_row.document_id
     disp_features = disp_row.display_str #
@@ -100,12 +100,10 @@ def ffm_feature_string(display_id, ad_id, leaves, label=None):
 
     ad_src = AD_SRC + ':' + meta_src_dict[ad_doc_id]
     ad_pub = AD_PUBLISHER + ':' + meta_pub_dict[ad_doc_id]
-    
-    leaves_features = []
 
-    for i, leaf in enumerate(leaves):
-        leaves_features.append('%d:%d:1' % (leaves_start + i, leaf))
-
+    leaves_features = [
+        '%d:%d:1' % (leaves_start + i, leaf) for i, leaf in enumerate(leaves)
+    ]
     leaves_features = ' '.join(leaves_features)
 
     result = disp_features + ' ' + ad_features + ' ' + \
@@ -113,10 +111,7 @@ def ffm_feature_string(display_id, ad_id, leaves, label=None):
              ad_src + ' ' + ad_pub + ' ' + \
              leaves_features
 
-    if label is None:
-        return '0 ' + result
-    else:
-        return str(label) + ' ' + result
+    return '0 ' + result if label is None else f'{str(label)} ' + result
 
 
 # generating the data for train
@@ -127,27 +122,26 @@ leaves_0 = np.load('tmp/xgb_model_0_leaves.npy')
 leaves_1 = np.load('tmp/xgb_model_1_leaves.npy')
 
 
-f_0 = open('ffm/ffm_xgb_0.txt', 'w')
-f_1 = open('ffm/ffm_xgb_1.txt', 'w')
-cnt_0 = 0
-cnt_1 = 0
+with open('ffm/ffm_xgb_0.txt', 'w') as f_0:
+    f_1 = open('ffm/ffm_xgb_1.txt', 'w')
+    cnt_0 = 0
+    cnt_1 = 0
 
-for row in tqdm(df_all.itertuples()):
-    display_id = row.display_id
-    ad_id = row.ad_id
-    fold = row.fold
-    label = row.clicked
+    for row in tqdm(df_all.itertuples()):
+        display_id = row.display_id
+        ad_id = row.ad_id
+        fold = row.fold
+        label = row.clicked
 
-    if fold == 0:
-        row = ffm_feature_string(display_id, ad_id, leaves_0[cnt_0], label)
-        f_0.write(row + '\n')
-        cnt_0 = cnt_0 + 1
-    else:
-        row = ffm_feature_string(display_id, ad_id, leaves_1[cnt_1], label)
-        f_1.write(row + '\n')
-        cnt_1 = cnt_1 + 1
+        if fold == 0:
+            row = ffm_feature_string(display_id, ad_id, leaves_0[cnt_0], label)
+            f_0.write(row + '\n')
+            cnt_0 = cnt_0 + 1
+        else:
+            row = ffm_feature_string(display_id, ad_id, leaves_1[cnt_1], label)
+            f_1.write(row + '\n')
+            cnt_1 = cnt_1 + 1
 
-f_0.close()
 f_1.close()
 
 
@@ -162,22 +156,21 @@ df_test = feather.read_dataframe('tmp/clicks_test.feather')
 leaves_0 = np.load('tmp/xgb_model_0_test_leaves.npy')
 leaves_1 = np.load('tmp/xgb_model_1_test_leaves.npy')
 
-f_0 = open('ffm/ffm_xgb_test_0.txt', 'w')
-f_1 = open('ffm/ffm_xgb_test_1.txt', 'w')
+with open('ffm/ffm_xgb_test_0.txt', 'w') as f_0:
+    f_1 = open('ffm/ffm_xgb_test_1.txt', 'w')
 
-cnt = 0
+    cnt = 0
 
-for row in tqdm(df_test.itertuples()):
-    display_id = row.display_id
-    ad_id = row.ad_id
+    for row in tqdm(df_test.itertuples()):
+        display_id = row.display_id
+        ad_id = row.ad_id
 
-    row = ffm_feature_string(display_id, ad_id, leaves_0[cnt])
-    f_0.write(row + '\n')
+        row = ffm_feature_string(display_id, ad_id, leaves_0[cnt])
+        f_0.write(row + '\n')
 
-    row = ffm_feature_string(display_id, ad_id, leaves_1[cnt])
-    f_1.write(row + '\n')
-    
-    cnt = cnt + 1
+        row = ffm_feature_string(display_id, ad_id, leaves_1[cnt])
+        f_1.write(row + '\n')
 
-f_0.close()
+        cnt = cnt + 1
+
 f_1.close()

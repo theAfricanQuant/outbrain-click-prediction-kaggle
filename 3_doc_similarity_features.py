@@ -21,7 +21,7 @@ display_doc_ids = []
 
 with open('../data/events.csv') as f:
     reader = csv.DictReader(f)
-    
+
     for row in tqdm(reader):
         doc_id = int(row['document_id'])
         display_doc_ids.append(doc_id)
@@ -33,7 +33,7 @@ ad_doc_id = {}
 
 with open('../data/promoted_content.csv') as f:
     reader = csv.DictReader(f)
-    
+
     for row in tqdm(reader):
         ad_id = int(row['ad_id'])
         doc_id = int(row['document_id'])
@@ -58,7 +58,7 @@ entities = defaultdict(list)
 
 with open('../data/documents_entities.csv') as f:
     reader = csv.DictReader(f)
-    
+
     for row in tqdm(reader):
         doc_id = int(row['document_id'])
         en = 'entity_' + row['entity_id']
@@ -69,7 +69,7 @@ topics = defaultdict(list)
 
 with open('../data/documents_topics.csv') as f:
     reader = csv.DictReader(f)
-    
+
     for row in tqdm(reader):
         doc_id = int(row['document_id'])
         t = 'topic_' + row['topic_id']
@@ -87,7 +87,7 @@ with open('../data/documents_meta.csv') as f:
 
     for row in tqdm(reader):
         doc_id = int(row['document_id'])
-        
+
         source = 'src_' + row['source_id']
         if not source:
             source = 'src_unk'
@@ -104,7 +104,7 @@ with open('../data/documents_meta.csv') as f:
         doc_ids.append(doc_id)
         doc_values.append(dict(doc_vector))
 
-        values_cnt.update([n for (n, _) in doc_vector])
+        values_cnt |= [n for (n, _) in doc_vector]
 
 
 doc_id_to_idx = {d: i for (i, d) in enumerate(doc_ids)}
@@ -235,8 +235,8 @@ cols_to_rank = ['doc_idf_dot', 'doc_idf_dot_lsa', 'doc_idf_cos']
 
 for f in tqdm(cols_to_rank):
     for df in [df_train_0, df_train_1, df_test]:
-        df['%s_rank' % f] = df.groupby('display_id')[f].rank(ascending=0)
-        df['%s_rank' % f] = df['%s_rank' % f].astype('uint8')
+        df[f'{f}_rank'] = df.groupby('display_id')[f].rank(ascending=0)
+        df[f'{f}_rank'] = df[f'{f}_rank'].astype('uint8')
 
 
 feather.write_dataframe(df_train_0, 'features/docs_df_train_0.feather')

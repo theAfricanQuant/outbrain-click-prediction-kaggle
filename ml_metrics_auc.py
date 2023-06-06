@@ -14,7 +14,7 @@ def tied_rank(x):
             The tied rank f each element in x
     """
     sorted_x = sorted(zip(x,range(len(x))))
-    r = [0 for k in x]
+    r = [0 for _ in x]
     cur_val = sorted_x[0][0]
     last_rank = 0
     for i in range(len(sorted_x)):
@@ -47,7 +47,7 @@ def auc(actual, posterior):
     r = tied_rank(posterior)
     num_positive = len([0 for x in actual if x==1])
     num_negative = len(actual)-num_positive
-    sum_positive = sum([r[i] for i in range(len(r)) if actual[i]==1])
-    auc = ((sum_positive - num_positive*(num_positive+1)/2.0) /
-           (num_negative*num_positive))
-    return auc
+    sum_positive = sum(r[i] for i in range(len(r)) if actual[i]==1)
+    return (sum_positive - num_positive * (num_positive + 1) / 2.0) / (
+        num_negative * num_positive
+    )

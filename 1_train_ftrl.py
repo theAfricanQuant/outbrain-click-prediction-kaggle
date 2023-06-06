@@ -24,8 +24,7 @@ interactions = True
 n_epochs = 1
 show_auc = False
 
-models = {}
-models['0'] = ftrl.FtrlProximal(alpha, beta, L1, L2, D, interactions)
+models = {'0': ftrl.FtrlProximal(alpha, beta, L1, L2, D, interactions)}
 models['1'] = ftrl.FtrlProximal(alpha, beta, L1, L2, D, interactions)
 model_full  = ftrl.FtrlProximal(alpha, beta, L1, L2, D, interactions)
 
@@ -49,11 +48,7 @@ for i in range(n_epochs):
 
             x = spaces.split(row['ad_display_str'].strip())
 
-            if row['fold'] == '0':
-                fold = '1'
-            else: # '1'
-                fold = '0'
-
+            fold = '1' if row['fold'] == '0' else '0'
             models[fold].fit(x, y)
             model_full.fit(x, y)
 
@@ -74,8 +69,7 @@ t0 = time()
 all_y = {'0': [], '1': []}
 all_pred = {'0': [], '1': []}
 
-f_pred = {}
-f_pred['0'] = open('predictions/ftrl_pred_0.txt', 'w')
+f_pred = {'0': open('predictions/ftrl_pred_0.txt', 'w')}
 f_pred['0'].write('y_actual,y_pred\n')
 
 f_pred['1'] = open('predictions/ftrl_pred_1.txt', 'w')
@@ -105,7 +99,7 @@ with open('tmp/svm_features_train.csv', 'r') as f:
             print('auc: %.4f, %.4f' % (auc0, auc1))
 
 auc0 = auc(all_y['0'], all_pred['0'])
-auc1 = auc(all_y['1'], all_pred['1'])            
+auc1 = auc(all_y['1'], all_pred['1'])
 print('final auc: %.4f, %.4f' % (auc0, auc1))
 
 f_pred['0'].close()
@@ -121,22 +115,20 @@ print('applying the model to the test data...')
 
 t0 = time()
 
-f_pred = open('predictions/ftrl_pred_test.txt', 'w')
-f_pred.write('y_pred\n')
+with open('predictions/ftrl_pred_test.txt', 'w') as f_pred:
+    f_pred.write('y_pred\n')
 
-with open('tmp/svm_features_test.csv', 'r') as f:
-    reader = DictReader(f)
+    with open('tmp/svm_features_test.csv', 'r') as f:
+        reader = DictReader(f)
 
-    cnt = 0
-    for row in reader:
-        x = spaces.split(row['ad_display_str'].strip())
-        y_pred = model_full.predict(x)
-        f_pred.write('%s\n' % y_pred)
+        cnt = 0
+        for row in reader:
+            x = spaces.split(row['ad_display_str'].strip())
+            y_pred = model_full.predict(x)
+            f_pred.write('%s\n' % y_pred)
 
-        cnt = cnt + 1
-        if cnt % 1000000 == 0:
-            print('processed %dth row' % cnt)
-
-f_pred.close()
+            cnt = cnt + 1
+            if cnt % 1000000 == 0:
+                print('processed %dth row' % cnt)
 
 print('predict took %0.3fm' % ((time() - t0) / 60))

@@ -172,7 +172,7 @@ df_ads.rename(columns={'document_id': 'ad_document_id'}, inplace=1)
 # we will do everything in batches
 def prepare_batch(batch):
     batch = batch.reset_index(drop=1)
-    
+
     batch_display = df_display.iloc[batch.display_id - 1].reset_index(drop=1)
 
     batch_ad_ids = batch.ad_id.apply(ad_to_idx.get)
@@ -191,7 +191,7 @@ def prepare_batch(batch):
 
     del batch_ad_doc_meta['document_id']
 
-    batch_ad_doc_meta.columns = ['ad_doc_%s' % c for c in batch_ad_doc_meta.columns]
+    batch_ad_doc_meta.columns = [f'ad_doc_{c}' for c in batch_ad_doc_meta.columns]
 
     batch_meta_idx = batch_display.on_document_id.apply(meta_idx.get)
     batch_on_doc_meta = df_doc_meta.iloc[batch_meta_idx].reset_index(drop=1)
@@ -205,8 +205,8 @@ def prepare_batch(batch):
 
     del batch_on_doc_meta['document_id']
 
-    batch_on_doc_meta.columns = ['on_doc_%s' % c for c in batch_on_doc_meta.columns]
-    
+    batch_on_doc_meta.columns = [f'on_doc_{c}' for c in batch_on_doc_meta.columns]
+
     joined_batch = pd.concat([batch, batch_ads, batch_display, 
                               batch_ad_doc_meta, batch_on_doc_meta], axis=1)
 
@@ -223,16 +223,20 @@ def prepare_batch(batch):
             continue
 
         for c2 in ['day', 'hour', 'geo_0', 'geo_1', 'geo_2']:
-            joined_batch['%s_%s' % (c, c2)] = joined_batch[c] + '_' + joined_batch[c2]
-    
+            joined_batch[f'{c}_{c2}'] = joined_batch[c] + '_' + joined_batch[c2]
+
     two_way_comb = sorted(all_features - {'day', 'hour', 'geo_0', 'geo_1', 'geo_2'})
-    
+
     combs = list(combinations(two_way_comb, 2))
 
     for c1, c2 in combs:
         if 'on_doc' in c1 and 'on_doc' in c2:
             continue
-        joined_batch['%s_%s' % (c1, c2)] = joined_batch[c1].astype('str') + '_' + joined_batch[c2].astype('str')
+        joined_batch[f'{c1}_{c2}'] = (
+            joined_batch[c1].astype('str')
+            + '_'
+            + joined_batch[c2].astype('str')
+        )
 
     return joined_batch
 

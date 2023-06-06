@@ -32,34 +32,28 @@ np.save('tmp/fold_0_split.npy', df_train_0.fold.values)
 np.save('tmp/fold_1_split.npy', df_train_1.fold.values)
 
 
-# split fold 0 into subfolds
+with open('ffm/ffm_xgb_0_0.txt', 'w') as f_0:
+    f_1 = open('ffm/ffm_xgb_0_1.txt', 'w')
 
-f_0 = open('ffm/ffm_xgb_0_0.txt', 'w')
-f_1 = open('ffm/ffm_xgb_0_1.txt', 'w')
+    with open('ffm/ffm_xgb_0.txt', 'r') as f_in:
+        for fold, line in tqdm(zip(df_train_0.fold, f_in)):
+            if fold == 0:
+                f_0.write(line)
+            else:
+                f_1.write(line)
 
-with open('ffm/ffm_xgb_0.txt', 'r') as f_in:
-    for fold, line in tqdm(zip(df_train_0.fold, f_in)):
-        if fold == 0:
-            f_0.write(line)
-        else:
-            f_1.write(line)
-
-f_0.close()
 f_1.close()
 
 
-# split fold 1 into subfolds
+with open('ffm/ffm_xgb_1_0.txt', 'w') as f_0:
+    f_1 = open('ffm/ffm_xgb_1_1.txt', 'w')
 
-f_0 = open('ffm/ffm_xgb_1_0.txt', 'w')
-f_1 = open('ffm/ffm_xgb_1_1.txt', 'w')
+    with open('ffm/ffm_xgb_1.txt', 'r') as f_in:
+        for fold, line in tqdm(zip(df_train_1.fold, f_in)):
+            if fold == 0:
+                f_0.write(line)
+            else:
+                f_1.write(line)
 
-with open('ffm/ffm_xgb_1.txt', 'r') as f_in:
-    for fold, line in tqdm(zip(df_train_1.fold, f_in)):
-        if fold == 0:
-            f_0.write(line)
-        else:
-            f_1.write(line)
-
-f_0.close()
 f_1.close()
 
